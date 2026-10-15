@@ -242,6 +242,7 @@ class Renderer {
         let back = new Matrix(3, 3);
         CG.mat3x3Translate(back, poly.center.x, poly.center.y);
         poly.transform = Matrix.multiply([back, rotate, toOrigin]);
+      }
       } else if (this.slide_idx == 2) {
       let shapeOne = this.models.slide2[0];
       let shapeTwo = this.models.slide2[1];
