@@ -38,13 +38,53 @@ class Renderer {
 
                     x: 0,
                     y: 0,
-                    velocityX: 0.15,
-                    velocityY: 0.12
+                    velocityX: 0.30,
+                    velocityY: 0.30
                 }
             ],
             slide1: [],
-            slide2: [],
-            slide3: []
+            slide2: [
+                {
+                    vertices: [
+                        CG.Vector3(550, 210, 1),
+                        CG.Vector3(500, 300, 1),
+                        CG.Vector3(550, 400, 1),
+                        CG.Vector3(600, 300, 1)
+                    ],
+                    transform: null,
+
+                    x: 200,
+                    y: 300,
+                    velocityX: 0.30,
+                    velocityY: 0.30
+                },
+                {
+                    vertices: [
+                        CG.Vector3(250, 200, 1),
+                        CG.Vector3(345, 269, 1),
+                        CG.Vector3(309, 381, 1),
+                        CG.Vector3(191, 381, 1),
+                        CG.Vector3(155, 269, 1)
+                    ],
+                    transform: null,
+
+                    x: 400,
+                    y: 300,
+                    velocityX: 0.30,
+                    velocityY: 0.30
+                }
+            ],
+            slide3: [
+                {
+                    vertices: vertices,
+                    x: 400,
+                    y: 300,
+                    transform: null,
+                    scale: 1,
+                    scaleSpeed: 0.001,
+                    visible: true
+                }
+            ]
         };
     }
 
@@ -103,8 +143,11 @@ class Renderer {
         if (this.slide_idx == 0) {
             let ball = this.models.slide0[0];
 
+            // find all the x and y values of the vertices for the cricle
             const xValues = ball.vertices.map((vertex) => vertex.values[0][0]);
             const yValues = ball.vertices.map((vertex) => vertex.values[1][0]);
+
+            // min and max values
             const minX = Math.min(...xValues);
             const maxX = Math.max(...xValues);
             const minY = Math.min(...yValues);
@@ -113,17 +156,19 @@ class Renderer {
             ball.x += ball.velocityX * delta_time;
             ball.y += ball.velocityY * delta_time;
 
-            // Keep the entire polygon inside the canvas. x and y are
-            // translation offsets because the vertices already have positions.
+            // Keep the entire polygon inside the canvas
             if (minX + ball.x < 0) {
                 ball.x = -minX;
                 ball.velocityX *= -1;
             }
+
+            // for right side
             else if (maxX + ball.x > this.canvas.width) {
                 ball.x = this.canvas.width - maxX;
                 ball.velocityX *= -1;
             }
-
+            
+            // translation offsets because the vertices already have positions
             if (minY + ball.y < 0) {
                 ball.y = -minY;
                 ball.velocityY *= -1;
@@ -138,7 +183,41 @@ class Renderer {
 
             ball.transform = transform;
         }
-        
+
+        else if ( this.slide_idx == 2) {
+
+        } else if ( this.slide_idx == 3) {
+            
+            let ball = this.models.slide0[0];
+
+            if (!ball.visible) {
+                return;
+            }
+
+            ball.scale += ball.scaleSpeed * delta_time;
+
+            // find all the x and y values of the vertices for the cricle
+            const yValues = ball.vertices.map((vertex) => vertex.values[1][0]);
+
+            // top y value
+            const minY = Math.min(...yValues);
+
+            if (minY <= 0) {
+                ball.visible = false;
+                ball.transform = null;
+                return;
+            }
+
+
+            let scaleMatrix = new Matrix(3, 3);
+
+            CG.mat3x3Scale(
+                scaleMatrix, 
+                ball.scale,
+                ball.scale
+            );
+
+        }
         
 
     }
@@ -169,7 +248,7 @@ class Renderer {
         // TODO: draw bouncing ball (circle that changes direction whenever it hits an edge)
         
         let ball = this.models.slide0[0];
-        let color = [0, 128, 128, 255];
+        let color = [100, 0, 200, 255];
 
         let vertices = ball.vertices;
 
@@ -195,7 +274,15 @@ class Renderer {
         // TODO: draw at least 2 polygons grow and shrink about their own centers
         //   - have each polygon grow / shrink different sizes
         //   - try at least 1 polygon that grows / shrinks non-uniformly in the x and y directions
+    
+        let shapeOne = this.models.slide2[0]
+        let shapeTwo = this.models.slide2[1]
 
+        let color = [100, 0, 200, 255];
+
+        this.drawConvexPolygon(shapeOne.vertices, color);
+
+        this.drawConvexPolygon(shapeTwo.vertices, color);
 
     }
 
@@ -204,7 +291,21 @@ class Renderer {
         // TODO: get creative!
         //   - animation should involve all three basic transformation types
         //     (translation, scaling, and rotation)
+
+        let circle = this.models.slide3[0]
+        let color = [100, 150, 100, 255];
+
+        let vertices = circle.vertices;
+
+        if (circle.transform !== null) {
+            vertices = circle.vertices.map((vertex) => {
+                return circle.transform.mult(vertex);
+            });
+        }
+
         
+        this.drawConvexPolygon(circle.vertices, color);
+
         
     }
     
