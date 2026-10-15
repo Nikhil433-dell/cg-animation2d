@@ -81,74 +81,80 @@ class Renderer {
         },
       ],
       slide2: [
-                {
-                    vertices: [
-                        CG.Vector3(0, -100, 1),
-                        CG.Vector3(95, -31, 1),
-                        CG.Vector3(59, 81, 1),
-                        CG.Vector3(-59, 81, 1),
-                        CG.Vector3(-95, -31, 1)
-                    ],
-                    transform: null,
-                    x: 200,
-                    y: 300,
-                    scale: 1,
-                    scaleDirection: 1,
-                    scaleSpeed: 0.001,
-                },
-                {
-                    vertices: [
-                        CG.Vector3(0, -90, 1),
-                        CG.Vector3(-50, 0, 1),
-                        CG.Vector3(0, 100, 1),
-                        CG.Vector3(50, 0, 1)
-                    ],
-                    transform: null,
-                    x: 400,
-                    y: 300,
-                    scale: 1,
-                    scaleDirection: 1,
-                    scaleSpeed: 0.005,
-                },
-                {
-                    vertices: [
-                        CG.Vector3(0, -80, 1),
-                        CG.Vector3(70, 0, 1),
-                        CG.Vector3(0, 80, 1),
-                        CG.Vector3(-70, 0, 1)
-                    ],
-                    transform: null,
-                    x: 400,
-                    y: 300,
-                    scaleX: 1,
-                    scaleY: 1,
-                    scaleDirectionX: 1,
-                    scaleDirectionY: -1,
-                    scaleSpeedX: 0.001,
-                    scaleSpeedY: 0.0005
-                }
-            ],
-            slide3: [
-                {
-                    vertices: vertices,
-                    transform: null,
-                    x: 400,
-                    y: 300,
-                    scale: 1,
-                    scaleSpeed: 0.001,
-                    visible: true
-                },/////Diamonds
-          {vertices: [CG.Vector3(100,200,1),CG.Vector3(150,300,1),CG.Vector3(200,200,1),CG.Vector3(150,100,1)],
+        {
+          vertices: [
+            CG.Vector3(0, -100, 1),
+            CG.Vector3(95, -31, 1),
+            CG.Vector3(59, 81, 1),
+            CG.Vector3(-59, 81, 1),
+            CG.Vector3(-95, -31, 1),
+          ],
+          transform: null,
+          x: 200,
+          y: 300,
+          scale: 1,
+          scaleDirection: 1,
+          scaleSpeed: 0.001,
+        },
+        {
+          vertices: [
+            CG.Vector3(0, -90, 1),
+            CG.Vector3(-50, 0, 1),
+            CG.Vector3(0, 100, 1),
+            CG.Vector3(50, 0, 1),
+          ],
+          transform: null,
+          x: 400,
+          y: 300,
+          scale: 1,
+          scaleDirection: 1,
+          scaleSpeed: 0.005,
+        },
+        {
+          vertices: [
+            CG.Vector3(0, -80, 1),
+            CG.Vector3(70, 0, 1),
+            CG.Vector3(0, 80, 1),
+            CG.Vector3(-70, 0, 1),
+          ],
+          transform: null,
+          x: 400,
+          y: 300,
+          scaleX: 1,
+          scaleY: 1,
+          scaleDirectionX: 1,
+          scaleDirectionY: -1,
+          scaleSpeedX: 0.001,
+          scaleSpeedY: 0.0005,
+        },
+      ],
+      slide3: [
+        {
+          vertices: vertices,
+          transform: null,
+          x: 400,
+          y: 300,
+          scale: 1,
+          scaleSpeed: 0.001,
+          visible: true,
+        }, /////Diamonds
+        {
+          vertices: [
+            CG.Vector3(100, 200, 1),
+            CG.Vector3(150, 300, 1),
+            CG.Vector3(200, 200, 1),
+            CG.Vector3(150, 100, 1),
+          ],
           center: { x: 200, y: 350 },
           revolutions: -0.25,
           color: [252, 3, 144, 255],
           transform: null,
-          velocityX: -0.15^Math.E,
-          velocityY:-1,
-          x:0,
-          y:0
-    }//////
-            ]
+          velocityX: -0.15 ^ Math.E,
+          velocityY: -1,
+          x: 0,
+          y: 0,
+        }, //////
+      ],
     };
   }
 
@@ -242,189 +248,147 @@ class Renderer {
       ball.transform = transform;
     } else if (this.slide_idx == 1) {
       for (let poly of this.models.slide1) {
-          let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
-  
-          let toOrigin = new Matrix(3, 3);
-          CG.mat3x3Translate(toOrigin, -poly.center.x, -poly.center.y);
-  
-          let rotate = new Matrix(3, 3);
-          CG.mat3x3Rotate(rotate, theta);
-  
-          let back = new Matrix(3, 3);
-          CG.mat3x3Translate(back, poly.center.x, poly.center.y);
-  
-          poly.transform = Matrix.multiply([back, rotate, toOrigin]);
+        let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
+
+        let toOrigin = new Matrix(3, 3);
+        CG.mat3x3Translate(toOrigin, -poly.center.x, -poly.center.y);
+
+        let rotate = new Matrix(3, 3);
+        CG.mat3x3Rotate(rotate, theta);
+
+        let back = new Matrix(3, 3);
+        CG.mat3x3Translate(back, poly.center.x, poly.center.y);
+
+        poly.transform = Matrix.multiply([back, rotate, toOrigin]);
       }
     } else if (this.slide_idx == 2) {
       let shapeOne = this.models.slide2[0];
       let shapeTwo = this.models.slide2[1];
       let shapeThree = this.models.slide2[2];
 
-      shapeOne.scale += shapeOne.scaleDirection * shapeOne.scaleSpeed * delta_time;
+      shapeOne.scale +=
+        shapeOne.scaleDirection * shapeOne.scaleSpeed * delta_time;
 
       if (shapeOne.scale >= 2) {
-          shapeOne.scale = 2;
-          shapeOne.scaleDirection = -1;
-      }
-      else if (shapeOne.scale <= 1) {
-          shapeOne.scale = 1;
-          shapeOne.scaleDirection = 1;
+        shapeOne.scale = 2;
+        shapeOne.scaleDirection = -1;
+      } else if (shapeOne.scale <= 1) {
+        shapeOne.scale = 1;
+        shapeOne.scaleDirection = 1;
       }
 
-      shapeTwo.scale += shapeTwo.scaleDirection * shapeTwo.scaleSpeed * delta_time;
+      shapeTwo.scale +=
+        shapeTwo.scaleDirection * shapeTwo.scaleSpeed * delta_time;
 
       if (shapeTwo.scale >= 2) {
-          shapeTwo.scale = 2;
-          shapeTwo.scaleDirection = -1;
-      }
-      else if (shapeTwo.scale <= 1) {
-          shapeTwo.scale = 1;
-          shapeTwo.scaleDirection = 1;
+        shapeTwo.scale = 2;
+        shapeTwo.scaleDirection = -1;
+      } else if (shapeTwo.scale <= 1) {
+        shapeTwo.scale = 1;
+        shapeTwo.scaleDirection = 1;
       }
 
-      shapeThree.scaleX += shapeThree.scaleDirectionX * shapeThree.scaleSpeedX * delta_time;
-      shapeThree.scaleY += shapeThree.scaleDirectionY * shapeThree.scaleSpeedY * delta_time;
+      shapeThree.scaleX +=
+        shapeThree.scaleDirectionX * shapeThree.scaleSpeedX * delta_time;
+      shapeThree.scaleY +=
+        shapeThree.scaleDirectionY * shapeThree.scaleSpeedY * delta_time;
 
       if (shapeThree.scaleX >= 2) {
-          shapeThree.scaleX = 2;
-          shapeThree.scaleDirectionX = -1;
-      }
-      else if (shapeThree.scaleX <= 1) {
-          shapeThree.scaleX = 1;
-          shapeThree.scaleDirectionX = 1;
+        shapeThree.scaleX = 2;
+        shapeThree.scaleDirectionX = -1;
+      } else if (shapeThree.scaleX <= 1) {
+        shapeThree.scaleX = 1;
+        shapeThree.scaleDirectionX = 1;
       }
 
       if (shapeThree.scaleY >= 2) {
-          shapeThree.scaleY = 2;
-          shapeThree.scaleDirectionY = -1;
+        shapeThree.scaleY = 2;
+        shapeThree.scaleDirectionY = -1;
+      } else if (shapeThree.scaleY <= 1) {
+        shapeThree.scaleY = 1;
+        shapeThree.scaleDirectionY = 1;
       }
-      else if (shapeThree.scaleY <= 1) {
-          shapeThree.scaleY = 1;
-          shapeThree.scaleDirectionY = 1;
-      }
-
-
 
       let transform = new Matrix(3, 3);
       let scaleMatrix = new Matrix(3, 3);
 
-      CG.mat3x3Scale(
-          scaleMatrix,
-          shapeOne.scale,
-          shapeOne.scale
-      );
+      CG.mat3x3Scale(scaleMatrix, shapeOne.scale, shapeOne.scale);
 
-      CG.mat3x3Translate(
-          transform,
-          shapeOne.x,
-          shapeOne.y
-      );
+      CG.mat3x3Translate(transform, shapeOne.x, shapeOne.y);
 
-      shapeOne.transform = Matrix.multiply([
-          transform,
-          scaleMatrix
-      ]);
+      shapeOne.transform = Matrix.multiply([transform, scaleMatrix]);
 
-      CG.mat3x3Scale(
-          scaleMatrix,
-          shapeTwo.scale,
-          shapeTwo.scale
-      );
+      CG.mat3x3Scale(scaleMatrix, shapeTwo.scale, shapeTwo.scale);
 
-      CG.mat3x3Translate(
-          transform,
-          shapeTwo.x,
-          shapeTwo.y
-      );
+      CG.mat3x3Translate(transform, shapeTwo.x, shapeTwo.y);
 
-      shapeTwo.transform = Matrix.multiply([
-          transform,
-          scaleMatrix
-      ]);
+      shapeTwo.transform = Matrix.multiply([transform, scaleMatrix]);
 
-      CG.mat3x3Scale(
-          scaleMatrix,
-          shapeThree.scaleX,
-          shapeThree.scaleY
-      );
+      CG.mat3x3Scale(scaleMatrix, shapeThree.scaleX, shapeThree.scaleY);
 
-      CG.mat3x3Translate(
-          transform,
-          shapeThree.x,
-          shapeThree.y
-      );
+      CG.mat3x3Translate(transform, shapeThree.x, shapeThree.y);
 
-      shapeThree.transform = Matrix.multiply([
-          transform,
-          scaleMatrix
-      ]);
+      shapeThree.transform = Matrix.multiply([transform, scaleMatrix]);
     } else if (this.slide_idx == 3) {
       let ball = this.models.slide3[0];
 
       if (!ball.visible) {
-          return;
+        return;
       }
-
 
       ball.scale += ball.scaleSpeed * delta_time;
 
       // find all the x and y values of the vertices for the cricle
       const yValues = ball.vertices.map((vertex) => vertex.values[1][0]);
-      
+
       // top y value
       const maxY = Math.max(...yValues);
 
       let heightY = maxY;
 
       if (heightY + maxY < 450) {
-          heightY *=  ball.scale;
+        heightY *= ball.scale;
       }
-      
+
       let scaleMatrix = new Matrix(3, 3);
       let transform = new Matrix(3, 3);
 
       if (heightY > this.canvas.height) {
-          console.log("touch the top!!!")
-          
-          ball.visible = false;
-          let newMatrix = new Matrix(3, 3);
+        console.log("touch the top!!!");
 
-          CG.mat3x3Translate(newMatrix, 10000, 10000);
+        ball.visible = false;
+        let newMatrix = new Matrix(3, 3);
 
-          ball.transform = newMatrix;
+        CG.mat3x3Translate(newMatrix, 10000, 10000);
 
-          return;
+        ball.transform = newMatrix;
+
+        return;
       }
-      
-      CG.mat3x3Translate(transform, ball.x, ball.y);
-      CG.mat3x3Scale(scaleMatrix, ball.scale, ball.scale)
-      
-      
 
-      ball.transform = Matrix.multiply([
-          transform,
-          scaleMatrix
-      ]);
+      CG.mat3x3Translate(transform, ball.x, ball.y);
+      CG.mat3x3Scale(scaleMatrix, ball.scale, ball.scale);
+
+      ball.transform = Matrix.multiply([transform, scaleMatrix]);
       //////diamonds
-        for (let i=1; i<this.models.slide3.length;i++) {
-        let poly= this.models.slide3[i];  
-        poly.x+=poly.velocityX*delta_time;
-        poly.y+=poly.velocityY*delta_time
+      for (let i = 1; i < this.models.slide3.length; i++) {
+        let poly = this.models.slide3[i];
+        poly.x += poly.velocityX * delta_time;
+        poly.y += poly.velocityY * delta_time;
         let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
-        let move= new Matrix(3,3);
-        CG.mat3x3Translate(move,poly.x,poly.y);
+        let move = new Matrix(3, 3);
+        CG.mat3x3Translate(move, poly.x, poly.y);
 
         let toOrigin = new Matrix(3, 3);
         CG.mat3x3Translate(toOrigin, -poly.center.x, -poly.center.y);
-      
+
         let rotate = new Matrix(3, 3);
         CG.mat3x3Rotate(rotate, theta);
-        
+
         let back = new Matrix(3, 3);
         CG.mat3x3Translate(back, poly.center.x, poly.center.y);
-        poly.transform = Matrix.multiply([back, rotate, toOrigin,move]);
-      }///////
-
+        poly.transform = Matrix.multiply([back, rotate, toOrigin, move]);
+      } ///////
     }
   }
 
@@ -490,9 +454,9 @@ class Renderer {
     //   - have each polygon grow / shrink different sizes
     //   - try at least 1 polygon that grows / shrinks non-uniformly in the x and y directions
 
-    let shapeOne = this.models.slide2[0]
-    let shapeTwo = this.models.slide2[1]
-    let shapeThree = this.models.slide2[2]
+    let shapeOne = this.models.slide2[0];
+    let shapeTwo = this.models.slide2[1];
+    let shapeThree = this.models.slide2[2];
 
     let color = [100, 0, 200, 255];
     let color2 = [100, 150, 0, 255];
@@ -502,23 +466,22 @@ class Renderer {
     let verticesTwo = shapeTwo.vertices;
     let verticesThree = shapeTwo.vertices;
 
-
     if (shapeOne.transform !== null) {
-        vertices = shapeOne.vertices.map((vertex) => {
-            return shapeOne.transform.mult(vertex);
-        });
+      vertices = shapeOne.vertices.map((vertex) => {
+        return shapeOne.transform.mult(vertex);
+      });
     }
 
     if (shapeTwo.transform !== null) {
-        verticesTwo = shapeTwo.vertices.map((vertex) => {
-            return shapeTwo.transform.mult(vertex);
-        });
+      verticesTwo = shapeTwo.vertices.map((vertex) => {
+        return shapeTwo.transform.mult(vertex);
+      });
     }
 
     if (shapeThree.transform !== null) {
-        verticesThree = shapeThree.vertices.map((vertex) => {
-            return shapeThree.transform.mult(vertex);
-        });
+      verticesThree = shapeThree.vertices.map((vertex) => {
+        return shapeThree.transform.mult(vertex);
+      });
     }
 
     this.drawConvexPolygon(vertices, color);
@@ -538,12 +501,21 @@ class Renderer {
     let vertices = ball.vertices;
 
     if (ball.transform !== null) {
-        vertices = ball.vertices.map((vertex) => {
-            return ball.transform.mult(vertex);
-        });
+      vertices = ball.vertices.map((vertex) => {
+        return ball.transform.mult(vertex);
+      });
     }
 
     this.drawConvexPolygon(vertices, color);
+
+    let diamonds = this.models.slide3[1];
+    let diamond_vertices;
+    if (diamonds.transform !== null) {
+      diamond_vertices = diamonds.vertices.map((vertex) => {
+        return diamonds.transform.mult(vertex);
+      });
+      this.drawConvexPolygon(diamond_vertices, diamonds.color);
+    }
   }
 
   // vertex_list:  array of object [Matrix(3, 1), Matrix(3, 1), ..., Matrix(3, 1)]
