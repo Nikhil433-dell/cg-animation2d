@@ -232,18 +232,20 @@ class Renderer {
       ball.transform = transform;
     } else if (this.slide_idx == 1) {
       for (let poly of this.models.slide1) {
-        let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
-        let toOrigin = new Matrix(3, 3);
-        CG.mat3x3Translate(toOrigin, -poly.center.x, -poly.center.y);
-
-        let rotate = new Matrix(3, 3);
-        CG.mat3x3Rotate(rotate, theta);
-
-        let back = new Matrix(3, 3);
-        CG.mat3x3Translate(back, poly.center.x, poly.center.y);
-        poly.transform = Matrix.multiply([back, rotate, toOrigin]);
+          let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
+  
+          let toOrigin = new Matrix(3, 3);
+          CG.mat3x3Translate(toOrigin, -poly.center.x, -poly.center.y);
+  
+          let rotate = new Matrix(3, 3);
+          CG.mat3x3Rotate(rotate, theta);
+  
+          let back = new Matrix(3, 3);
+          CG.mat3x3Translate(back, poly.center.x, poly.center.y);
+  
+          poly.transform = Matrix.multiply([back, rotate, toOrigin]);
       }
-      } else if (this.slide_idx == 2) {
+    } else if (this.slide_idx == 2) {
       let shapeOne = this.models.slide2[0];
       let shapeTwo = this.models.slide2[1];
       let shapeThree = this.models.slide2[2];
