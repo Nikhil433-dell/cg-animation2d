@@ -137,7 +137,17 @@ class Renderer {
                     scale: 1,
                     scaleSpeed: 0.001,
                     visible: true
-                }
+                }/////Diamonds
+          {vertices: [CG.Vector3(100,200,1),CG.Vector3(150,300,1),CG.Vector3(200,200,1),CG.Vector3(150,100,1)],
+          center: { x: 200, y: 350 },
+          revolutions: -0.25,
+          color: [252, 3, 144, 255],
+          transform: null,
+          velocityX: -0.15^Math.E,
+          velocityY:-1,
+          x:0,
+          y:0
+    }//////
             ]
     };
   }
@@ -395,6 +405,25 @@ class Renderer {
           transform,
           scaleMatrix
       ]);
+      //////diamonds
+        for (let i=1; i<this.models.slide3.length;i++) {
+        let poly= this.models.slide3[i];  
+        poly.x+=poly.velocityX*delta_time;
+        poly.y+=poly.velocityY*delta_time
+        let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
+        let move= new Matrix(3,3);
+        CG.mat3x3Translate(move,poly.x,poly.y);
+
+        let toOrigin = new Matrix(3, 3);
+        CG.mat3x3Translate(toOrigin, -poly.center.x, -poly.center.y);
+      
+        let rotate = new Matrix(3, 3);
+        CG.mat3x3Rotate(rotate, theta);
+        
+        let back = new Matrix(3, 3);
+        CG.mat3x3Translate(back, poly.center.x, poly.center.y);
+        poly.transform = Matrix.multiply([back, rotate, toOrigin,move]);
+      }///////
 
     }
   }
