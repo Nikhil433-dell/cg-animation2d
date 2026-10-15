@@ -137,7 +137,7 @@ class Renderer {
                     scale: 1,
                     scaleSpeed: 0.001,
                     visible: true
-                }/////Diamonds
+                },/////Diamonds
           {vertices: [CG.Vector3(100,200,1),CG.Vector3(150,300,1),CG.Vector3(200,200,1),CG.Vector3(150,100,1)],
           center: { x: 200, y: 350 },
           revolutions: -0.25,
