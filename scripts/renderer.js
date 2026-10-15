@@ -77,9 +77,9 @@ class Renderer {
             slide3: [
                 {
                     vertices: vertices,
+                    transform: null,
                     x: 400,
                     y: 300,
-                    transform: null,
                     scale: 1,
                     scaleSpeed: 0.001,
                     visible: true
@@ -184,38 +184,83 @@ class Renderer {
             ball.transform = transform;
         }
 
-        else if ( this.slide_idx == 2) {
-
-        } else if ( this.slide_idx == 3) {
+        else if ( this.slide_idx == 3) {
             
-            let ball = this.models.slide0[0];
+            let ball = this.models.slide3[0];
 
             if (!ball.visible) {
                 return;
             }
 
+
             ball.scale += ball.scaleSpeed * delta_time;
 
             // find all the x and y values of the vertices for the cricle
             const yValues = ball.vertices.map((vertex) => vertex.values[1][0]);
-
+            
             // top y value
-            const minY = Math.min(...yValues);
+            const maxY = Math.max(...yValues);
 
-            if (minY <= 0) {
-                ball.visible = false;
-                ball.transform = null;
-                return;
+            let leftDistance = this.canvas.height - ball.y;
+            let perAdd = leftDistance/time;
+
+            console.log(perAdd);
+
+            let heightY = maxY;
+
+
+            if (heightY + maxY < this.canvas.height) {
+                heightY *=  ball.scale;
             }
 
+            console.log(heightY);
+            console.log(this.canvas.height);
 
+            
             let scaleMatrix = new Matrix(3, 3);
+            let transform = new Matrix(3, 3);
 
-            CG.mat3x3Scale(
-                scaleMatrix, 
-                ball.scale,
-                ball.scale
-            );
+            if (heightY > this.canvas.height) {
+                console.log("touch the top!!!")
+                
+                ball.visible = false;
+                let newMatrix = new Matrix(3, 3);
+
+                CG.mat3x3Translate(newMatrix, 10000, 10000);
+
+                ball.transform = newMatrix;
+
+                return;
+            }
+            
+            CG.mat3x3Translate(transform, ball.x, ball.y);
+            CG.mat3x3Scale(scaleMatrix, ball.scale, ball.scale)
+            
+            
+
+            ball.transform = Matrix.multiply([
+                transform,
+                scaleMatrix
+            ]);
+
+
+            // CG.mat3x3Scale(
+            //     scaleMatrix, 
+            //     ball.scale,
+            //     ball.scale
+            // );
+
+            // CG.mat3x3Translate(
+            //     translateMatrix,
+            //     translateMatrix,
+            //     scaleMatrix
+            // );
+
+            // ball.transform = Matrix.multiply([
+            //     translateMatrix,
+            //     scaleMatrix
+            // ]);
+
 
         }
         
@@ -292,19 +337,18 @@ class Renderer {
         //   - animation should involve all three basic transformation types
         //     (translation, scaling, and rotation)
 
-        let circle = this.models.slide3[0]
-        let color = [100, 150, 100, 255];
+        let ball = this.models.slide3[0];
+        let color = [100, 0, 200, 255];
 
-        let vertices = circle.vertices;
+        let vertices = ball.vertices;
 
-        if (circle.transform !== null) {
-            vertices = circle.vertices.map((vertex) => {
-                return circle.transform.mult(vertex);
+        if (ball.transform !== null) {
+            vertices = ball.vertices.map((vertex) => {
+                return ball.transform.mult(vertex);
             });
         }
 
-        
-        this.drawConvexPolygon(circle.vertices, color);
+        this.drawConvexPolygon(vertices, color);
 
         
     }
