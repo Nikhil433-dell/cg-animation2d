@@ -17,6 +17,25 @@ function Polygon(cx, cy, radius, sides) {
 }
 
 class Renderer {
+  make_diamonds(count, x, y) {
+    for (let i = 0; i < count; i++)
+      this.models.slide3.push({
+        vertices: [
+          CG.Vector3(0, -20, 1),
+          CG.Vector3(10, 0, 1),
+          CG.Vector3(0, 20, 1),
+          CG.Vector3(-10, 0, 1),
+        ],
+        x: x,
+        y: y,
+        velocityX: Math.random() - 0.5 * 0.6,
+        velocityY: -(0.4 + Math.random() * 0.35),
+        revolutions: 2,
+        color: [252, 3, 144, 255],
+        transform: null,
+      });
+  }
+
   // canvas:              object ({id: __, width: __, height: __})
   // limit_fps_flag:      bool
   // fps:                 int
@@ -131,29 +150,14 @@ class Renderer {
       slide3: [
         {
           vertices: vertices,
+          radius: radius,
           transform: null,
           x: 400,
           y: 300,
           scale: 1,
           scaleSpeed: 0.001,
           visible: true,
-        }, /////Diamonds
-        {
-          vertices: [
-            CG.Vector3(100, 200, 1),
-            CG.Vector3(150, 300, 1),
-            CG.Vector3(200, 200, 1),
-            CG.Vector3(150, 100, 1),
-          ],
-          center: { x: 200, y: 350 },
-          revolutions: -0.25,
-          color: [252, 3, 144, 255],
-          transform: null,
-          velocityX: -0.15 ^ Math.E,
-          velocityY: -1,
-          x: 0,
-          y: 0,
-        }, //////
+        },
       ],
     };
   }
@@ -332,66 +336,52 @@ class Renderer {
     } else if (this.slide_idx == 3) {
       let ball = this.models.slide3[0];
 
-      if (!ball.visible) {
-        return;
+      if (ball.visible) {
+        ball.scale += ball.scaleSpeed * delta_time;
+        let r = ball.radius * ball.scale;
+
+        // find all the x and y values of the vertices for the cricle
+        const yValues = ball.vertices.map((vertex) => vertex.values[1][0]);
+
+        // top cause canvas points down
+        const minY = Math.min(...yValues);
+
+        let heightY = ball.y + minY * ball.scale;
+
+        if (heightY <= 0) {
+          console.log("touch the top!!!");
+
+          ball.visible = false;
+          this.make_diamonds(40, ball.x, ball.y);
+        } else {
+          let transform = new Matrix(3, 3);
+          let scaleMatrix = new Matrix(3, 3);
+
+          CG.mat3x3Translate(transform, ball.x, ball.y);
+          CG.mat3x3Scale(scaleMatrix, ball.scale, ball.scale);
+          ball.transform = Matrix.multiply([transform, scaleMatrix]);
+        }
+      } else {
+        //////diamonds
+        let weight = 0.001;
+        for (let i = 1; i < this.models.slide3.length; i++) {
+          let poly = this.models.slide3[i];
+          poly.velocityX += weight * delta_time;
+          poly.velocityY += weight * delta_time;
+          poly.x += poly.velocityX * delta_time;
+          poly.y += poly.velocityY * delta_time;
+          let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
+          let move = new Matrix(3, 3);
+          CG.mat3x3Translate(move, poly.x, poly.y);
+
+          let rotate = new Matrix(3, 3);
+          CG.mat3x3Rotate(rotate, theta);
+
+          poly.transform = Matrix.multiply([move, rotate]);
+        } ///////
       }
-
-      ball.scale += ball.scaleSpeed * delta_time;
-
-      // find all the x and y values of the vertices for the cricle
-      const yValues = ball.vertices.map((vertex) => vertex.values[1][0]);
-
-      // top y value
-      const maxY = Math.max(...yValues);
-
-      let heightY = maxY;
-
-      if (heightY + maxY < 450) {
-        heightY *= ball.scale;
-      }
-
-      let scaleMatrix = new Matrix(3, 3);
-      let transform = new Matrix(3, 3);
-
-      if (heightY > this.canvas.height) {
-        console.log("touch the top!!!");
-
-        ball.visible = false;
-        let newMatrix = new Matrix(3, 3);
-
-        CG.mat3x3Translate(newMatrix, 10000, 10000);
-
-        ball.transform = newMatrix;
-
-        return;
-      }
-
-      CG.mat3x3Translate(transform, ball.x, ball.y);
-      CG.mat3x3Scale(scaleMatrix, ball.scale, ball.scale);
-
-      ball.transform = Matrix.multiply([transform, scaleMatrix]);
-      //////diamonds
-      for (let i = 1; i < this.models.slide3.length; i++) {
-        let poly = this.models.slide3[i];
-        poly.x += poly.velocityX * delta_time;
-        poly.y += poly.velocityY * delta_time;
-        let theta = 2 * Math.PI * poly.revolutions * (time / 1000);
-        let move = new Matrix(3, 3);
-        CG.mat3x3Translate(move, poly.x, poly.y);
-
-        let toOrigin = new Matrix(3, 3);
-        CG.mat3x3Translate(toOrigin, -poly.center.x, -poly.center.y);
-
-        let rotate = new Matrix(3, 3);
-        CG.mat3x3Rotate(rotate, theta);
-
-        let back = new Matrix(3, 3);
-        CG.mat3x3Translate(back, poly.center.x, poly.center.y);
-        poly.transform = Matrix.multiply([back, rotate, toOrigin, move]);
-      } ///////
     }
   }
-
   //
   drawSlide() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -507,14 +497,15 @@ class Renderer {
     }
 
     this.drawConvexPolygon(vertices, color);
-
-    let diamonds = this.models.slide3[1];
-    let diamond_vertices;
-    if (diamonds.transform !== null) {
-      diamond_vertices = diamonds.vertices.map((vertex) => {
-        return diamonds.transform.mult(vertex);
-      });
-      this.drawConvexPolygon(diamond_vertices, diamonds.color);
+    for (let i = 1; i < this.models.slide3.length; i++) {
+      let diamonds = this.models.slide3[i];
+      let diamond_vertices;
+      if (diamonds.transform !== null) {
+        diamond_vertices = diamonds.vertices.map((vertex) => {
+          return diamonds.transform.mult(vertex);
+        });
+        this.drawConvexPolygon(diamond_vertices, diamonds.color);
+      }
     }
   }
 
